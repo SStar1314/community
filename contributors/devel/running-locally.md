@@ -25,7 +25,7 @@ Getting started locally
 
 #### Linux
 
-Not running Linux? Consider running [Minikube](http://kubernetes.io/docs/getting-started-guides/minikube/), or on a cloud provider like [Google Compute Engine](../getting-started-guides/gce.md).
+Not running Linux? Consider running [Minikube](http://kubernetes.io/docs/getting-started-guides/minikube/), or on a cloud provider like [Google Compute Engine](https://kubernetes.io/docs/getting-started-guides/gce/).
 
 #### Docker
 
@@ -117,8 +117,8 @@ cluster/kubectl.sh get replicationcontrollers
 
 ### Running a user defined pod
 
-Note the difference between a [container](../user-guide/containers.md)
-and a [pod](../user-guide/pods.md). Since you only asked for the former, Kubernetes will create a wrapper pod for you.
+Note the difference between a [container](https://kubernetes.io/docs/user-guide/containers/)
+and a [pod](https://kubernetes.io/docs/user-guide/pods/). Since you only asked for the former, Kubernetes will create a wrapper pod for you.
 However you cannot view the nginx start page on localhost. To verify that nginx is running you need to run `curl` within the docker container (try `docker exec`).
 
 You can control the specifications of a pod via a user defined manifest, and reach nginx through your browser on the port specified therein:
@@ -169,8 +169,7 @@ KUBE_DNS_SERVER_IP="10.0.0.10"
 KUBE_DNS_DOMAIN="cluster.local"
 ```
 
-To know more on DNS service you can look [here](http://issue.k8s.io/6667). Related documents can be found [here](../../build-tools/kube-dns/#how-do-i-configure-it)
-
+To know more on DNS service you can check out the [docs](http://kubernetes.io/docs/admin/dns/).
 
 <!-- BEGIN MUNGE: GENERATED_ANALYTICS -->
 [![Analytics](https://kubernetes-site.appspot.com/UA-36037335-10/GitHub/docs/devel/running-locally.md?pixel)]()

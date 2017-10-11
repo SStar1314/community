@@ -2,15 +2,19 @@
 
 The developer guide is for anyone wanting to either write code which directly accesses the
 Kubernetes API, or to contribute directly to the Kubernetes project.
-It assumes some familiarity with concepts in the [User Guide](../user-guide/README.md) and the [Cluster Admin
-Guide](../admin/README.md).
+It assumes some familiarity with concepts in the [User Guide](http://kubernetes.io/docs/user-guide/) and the [Cluster Admin
+Guide](http://kubernetes.io/docs/admin/).
 
 
 ## The process of developing and contributing code to the Kubernetes project
 
+* **Welcome to Kubernetes (New Developer Guide)**
+  ([welcome-to-kubernetes-new-developer-guide.md](welcome-to-kubernetes-new-developer-guide.md)):
+  An introductory guide to contributing to K8s.
+
 * **On Collaborative Development** ([collab.md](collab.md)): Info on pull requests and code reviews.
 
-* **GitHub Issues** ([issues.md](issues.md)): How incoming issues are reviewed and prioritized.
+* **GitHub Issues** ([issues.md](issues.md)): How incoming issues are triaged.
 
 * **Pull Request Process** ([pull-requests.md](pull-requests.md)): When and why pull requests are closed.
 
@@ -26,6 +30,8 @@ Guide](../admin/README.md).
 ## Setting up your dev environment, coding, and debugging
 
 * **Development Guide** ([development.md](development.md)): Setting up your development environment.
+
+* **Testing** ([testing.md](testing.md)): How to run unit, integration, and end-to-end tests in your development sandbox.
 
 * **Hunting flaky tests** ([flaky-tests.md](flaky-tests.md)): We have a goal of 99.9% flake free tests.
   Here's how to run your tests many times.
@@ -49,10 +55,10 @@ Guide](../admin/README.md).
 
 ## Developing against the Kubernetes API
 
-* The [REST API documentation](../api-reference/README.md) explains the REST
+* The [REST API documentation](http://kubernetes.io/docs/reference/) explains the REST
   API exposed by apiserver.
 
-* **Annotations** ([docs/user-guide/annotations.md](../user-guide/annotations.md)): are for attaching arbitrary non-identifying metadata to objects.
+* **Annotations** ([Annotations](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/)): are for attaching arbitrary non-identifying metadata to objects.
   Programs that automate Kubernetes objects may use annotations to store small amounts of their state.
 
 * **API Conventions** ([api-conventions.md](api-conventions.md)):
@@ -64,14 +70,14 @@ Guide](../admin/README.md).
 
 ## Writing plugins
 
-* **Authentication Plugins** ([docs/admin/authentication.md](../admin/authentication.md)):
+* **Authentication** ([Authentication](http://kubernetes.io/docs/admin/authentication/)):
   The current and planned states of authentication tokens.
 
-* **Authorization Plugins** ([docs/admin/authorization.md](../admin/authorization.md)):
+* **Authorization Plugins** ([Authorization](http://kubernetes.github.io/docs/admin/authorization/)):
   Authorization applies to all HTTP requests on the main apiserver port.
   This doc explains the available authorization implementations.
 
-* **Admission Control Plugins** ([admission_control](../design/admission_control.md))
+* **Admission Control Plugins** ([admission_control](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/api-machinery/admission_control.md))
 
 
 ## Building releases

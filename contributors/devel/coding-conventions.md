@@ -24,8 +24,6 @@ OS X
 
   - Go
 
-    - Ensure your code passes the [presubmit checks](development.md#hooks)
-
     - [Go Code Review
 Comments](https://github.com/golang/go/wiki/CodeReviewComments)
 
@@ -75,7 +73,7 @@ following Go conventions - `stateLock`, `mapLock` etc.
 tests
 
   - Table-driven tests are preferred for testing multiple scenarios/inputs; for
-example, see [TestNamespaceAuthorization](../../test/integration/auth/auth_test.go)
+example, see [TestNamespaceAuthorization](https://git.k8s.io/kubernetes/test/integration/auth/auth_test.go)
 
   - Significant features should come with integration (test/integration) and/or
 [end-to-end (test/e2e) tests](e2e-tests.md)
@@ -120,7 +118,7 @@ subdirectories).
 intended for users that deploy applications or cluster administrators,
 respectively. Actual application examples belong in /examples.
     - Examples should also illustrate [best practices for configuration and
-using the system](../user-guide/config-best-practices.md)
+using the system](https://kubernetes.io/docs/user-guide/config-best-practices/)
 
   - Third-party code
 

@@ -100,7 +100,7 @@ When it's possible to test Kubernetes using Kubernetes; volunteers should be giv
 ### Official support level
 
 When all e2e tests are passing for a given platform; the platform should be officially supported by the Kubernetes team.
-At the time of writing, `amd64` is in the officially supported category category.
+At the time of writing, `amd64` is in the officially supported category.
 
 When a platform is building and it's possible to set up a cluster with the core functionality, the platform is supported on a "best-effort" and experimental basis.
 At the time of writing, `arm`, `arm64` and `ppc64le` are in the experimental category; the e2e tests aren't cross-platform yet.
@@ -131,7 +131,7 @@ TL;DR;
 
 ### Components should expose their platform
 
-It should be possible to run clusters with mixed platforms smoothly. After all, bringing heterogenous machines together to a single unit (a cluster) is one of Kubernetes' greatest strengths. And since the Kubernetes' components communicate over HTTP, two binaries of different architectures may talk to each other normally.
+It should be possible to run clusters with mixed platforms smoothly. After all, bringing heterogeneous machines together to a single unit (a cluster) is one of Kubernetes' greatest strengths. And since the Kubernetes' components communicate over HTTP, two binaries of different architectures may talk to each other normally.
 
 The crucial thing here is that the components that handle platform-specific tasks (e.g. kubelet) should expose their platform. In the kubelet case, we've initially solved it by exposing the labels `beta.kubernetes.io/{os,arch}` on every node. This way an user may run binaries for different platforms on a multi-platform cluster, but still it requires manual work to apply the label to every manifest.
 
@@ -140,7 +140,7 @@ Also, [the apiserver now exposes](https://github.com/kubernetes/kubernetes/pull/
 ### Standardize all image Makefiles to follow the same pattern
 
 All Makefiles should push for all platforms when doing `make push`, and build for all platforms when doing `make build`.
-Under the hood; they should compile binaries in a container for reproducability, and use QEMU for emulating Dockerfile `RUN` commands if necessary.
+Under the hood; they should compile binaries in a container for reproducibility, and use QEMU for emulating Dockerfile `RUN` commands if necessary.
 
 ### Remove linux/amd64 hard-codings from the codebase
 
@@ -206,7 +206,7 @@ However, before temporarily [deactivating builds](https://github.com/kubernetes/
 Go 1.5 introduced many changes. To name a few that are relevant to Kubernetes:
  - C was eliminated from the tree (it was earlier used for the bootstrap runtime).
  - All processors are used by default, which means we should be able to remove [lines like this one](https://github.com/kubernetes/kubernetes/blob/v1.2.0/cmd/kubelet/kubelet.go#L37)
- - The garbage collector became more efficent (but also [confused our latency test](https://github.com/golang/go/issues/14396)).
+ - The garbage collector became more efficient (but also [confused our latency test](https://github.com/golang/go/issues/14396)).
  - `linux/arm64` and `linux/ppc64le` were added as new ports.
  - The `GO15VENDOREXPERIMENT` was started. We switched from `Godeps/_workspace` to the native `vendor/` in [this PR](https://github.com/kubernetes/kubernetes/pull/24242).
  - It's not required to pre-build the whole standard library `std` when cross-compliling. [Details](#prebuilding-the-standard-library-std)
@@ -215,7 +215,7 @@ Go 1.5 introduced many changes. To name a few that are relevant to Kubernetes:
 
 All release notes for Go 1.5 [are here](https://golang.org/doc/go1.5)
 
-Go 1.6 didn't introduce as many changes as Go 1.5 did, but here are some of note:
+Go 1.6 didn't introduce as many changes as Go 1.5 did, but here are some of notes:
  - It should perform a little bit better than Go 1.5.
  - `linux/mips64` and `linux/mips64le` were added as new ports.
  - Go < 1.6.2 for `ppc64le` had [bugs in it](https://github.com/kubernetes/kubernetes/issues/24922).
@@ -277,7 +277,7 @@ A great blog post [that is describing this](https://medium.com/@rakyll/go-1-5-cr
 Before Go 1.5, the whole Go project had to be cross-compiled from source for **all** platforms that _might_ be used, and that was quite a slow process:
 
 ```console
-# From build-tools/build-image/cross/Dockerfile when we used Go 1.4
+# From build/build-image/cross/Dockerfile when we used Go 1.4
 $ cd /usr/src/go/src
 $ for platform in ${PLATFORMS}; do GOOS=${platform%/*} GOARCH=${platform##*/} ./make.bash --no-clean; done
 ```
@@ -288,7 +288,7 @@ If you cross-compile multiple times, Go will build parts of `std`, throw it away
 However, there is an easy way of cross-compiling all `std` packages in advance with Go 1.5+:
 
 ```console
-# From build-tools/build-image/cross/Dockerfile when we're using Go 1.5+
+# From build/build-image/cross/Dockerfile when we're using Go 1.5+
 $ for platform in ${PLATFORMS}; do GOOS=${platform%/*} GOARCH=${platform##*/} go install std; done
 ```
 
@@ -377,7 +377,7 @@ In order to dynamically compile a go binary with `cgo`, we need `gcc` installed 
 
 The only Kubernetes binary that is using C code is the `kubelet`, or in fact `cAdvisor` on which `kubelet` depends. `hyperkube` is also dynamically linked as long as `kubelet` is. We should aim to make `kubelet` statically linked.
 
-The normal `x86_64-linux-gnu` can't cross-compile binaries, so we have to install gcc cross-compilers for every platform. We do this in the [`kube-cross`](../../build-tools/build-image/cross/Dockerfile) image,
+The normal `x86_64-linux-gnu` can't cross-compile binaries, so we have to install gcc cross-compilers for every platform. We do this in the [`kube-cross`](https://github.com/kubernetes/kubernetes/blob/master/build/build-image/cross/Dockerfile) image,
 and depend on the [`emdebian.org` repository](https://wiki.debian.org/CrossToolchains). Depending on `emdebian` isn't ideal, so we should consider using the latest `gcc` cross-compiler packages from the `ubuntu` main repositories in the future.
 
 Here's an example when cross-compiling plain C code:
@@ -448,7 +448,7 @@ ARMv6       | arm    | 6     | -           | 32-bit
 ARMv7       | arm    | 7     | armhf       | 32-bit
 ARMv8       | arm64  | -     | aarch64     | 64-bit
 
-The compability between the versions is pretty straightforward, ARMv5 binaries may run on ARMv7 hosts, but not vice versa.
+The compatibility between the versions is pretty straightforward, ARMv5 binaries may run on ARMv7 hosts, but not vice versa.
 
 ## Cross-building docker images for linux
 

@@ -1,6 +1,6 @@
 # Kubectl Conventions
 
-Updated: 8/27/2015
+Updated: 3/23/2017
 
 **Table of Contents**
 <!-- BEGIN MUNGE: GENERATED_TOC -->
@@ -13,7 +13,9 @@ Updated: 8/27/2015
   - [Flag conventions](#flag-conventions)
   - [Output conventions](#output-conventions)
   - [Documentation conventions](#documentation-conventions)
+  - [kubectl Factory conventions](#kubectl-Factory-conventions)
   - [Command implementation conventions](#command-implementation-conventions)
+  - [Exit code conventions](#exit-code-conventions)
   - [Generators](#generators)
 
 <!-- END MUNGE: GENERATED_TOC -->
@@ -31,6 +33,26 @@ Updated: 8/27/2015
     * `--namespace` should also override the value specified in a specified
 resource
 
+* Most kubectl commands should be able to operate in bulk on resources, of mixed types.
+
+* Kubectl should not make any decisions based on its nor the server's release version string. Instead, API
+  discovery and/or OpenAPI should be used to determine available features.
+
+* We currently only guarantee one release of version skew is supported, but we strive to make old releases of kubectl 
+  continue to work with newer servers in compliance with our API compatibility guarantees. This means, for instance, that
+  kubectl should not fully parse objects returned by the server into full Go types and then re-encode them, since that
+  would drop newly added fields. ([#3955](https://github.com/kubernetes/kubernetes/issues/3955))
+  
+* General-purpose kubectl commands (e.g., get, delete, create -f, replace, patch, apply) should work for all resource types,
+  even those not present when that release of kubectl was built, such as APIs added in newer releases, aggregated APIs,
+  and third-party resources.
+
+* While functionality may be added to kubectl out of expedience, commonly needed functionality should be provided by
+  the server to make it easily accessible to all API clients. ([#12143](https://github.com/kubernetes/kubernetes/issues/12143))
+  
+* Remaining non-trivial functionality remaining in kubectl should be made available to other clients via libraries
+  ([#7311](https://github.com/kubernetes/kubernetes/issues/7311))
+  
 ## Command conventions
 
 * Command names are all lowercase, and hyphenated if multiple words.
@@ -234,9 +256,9 @@ input, output, commonly used flags, etc.
 
 
   * Example should contain examples
-    * Start commands with `$`
-    * A comment should precede each example command, and should begin with `#`
-
+    * A comment should precede each example command. Comment should start with
+      an uppercase letter
+    * Command examples should not include a `$` prefix
 
 * Use "FILENAME" for filenames
 
@@ -245,14 +267,30 @@ rather than "RESOURCE" or "KIND"
 
 * Use "NAME" for resource names
 
+## kubectl Factory conventions
+
+The kubectl `Factory` is a large interface which is used to provide access to clients,
+polymorphic inspection, and polymorphic mutation.  The `Factory` is layered in
+"rings" in which one ring may reference inner rings, but not peers or outer rings.
+This is done to allow composition by extenders.
+
+In order for composers to be able to provide alternative factory implementations
+they need to provide low level pieces of *certain* functions so that when the factory
+calls back into itself it uses the custom version of the function.  Rather than try
+to enumerate everything that someone would want to override we split the factory into
+rings, where each ring can depend on methods an earlier ring, but cannot depend upon
+peer methods in its own ring.
+
+
 ## Command implementation conventions
 
 For every command there should be a `NewCmd<CommandName>` function that creates
 the command and returns a pointer to a `cobra.Command`, which can later be added
 to other parent commands to compose the structure tree. There should also be a
-`<CommandName>Config` struct with a variable to every flag and argument declared
-by the command (and any other variable required for the command to run). This
-makes tests and mocking easier. The struct ideally exposes three methods:
+`<CommandName>Options` struct with a variable to every flag and argument
+declared by the command (and any other variable required for the command to
+run). This makes tests and mocking easier. The struct ideally exposes three
+methods:
 
 * `Complete`: Completes the struct fields with values that may or may not be
 directly provided by the user, for example, by flags pointers, by the `args`
@@ -284,14 +322,14 @@ var (
     kubectl mine second_action --flag`)
 )
 
-// MineConfig contains all the options for running the mine cli command.
-type MineConfig struct {
+// MineOptions contains all the options for running the mine cli command.
+type MineOptions struct {
   mineLatest bool
 }
 
 // NewCmdMine implements the kubectl mine command.
 func NewCmdMine(parent, name string, f *cmdutil.Factory, out io.Writer) *cobra.Command {
-  opts := &MineConfig{}
+  opts := &MineOptions{}
 
   cmd := &cobra.Command{
     Use:     fmt.Sprintf("%s [--latest]", name),
@@ -316,17 +354,17 @@ func NewCmdMine(parent, name string, f *cmdutil.Factory, out io.Writer) *cobra.C
 }
 
 // Complete completes all the required options for mine.
-func (o *MineConfig) Complete(f *cmdutil.Factory, cmd *cobra.Command, args []string, out io.Writer) error {
+func (o *MineOptions) Complete(f *cmdutil.Factory, cmd *cobra.Command, args []string, out io.Writer) error {
   return nil
 }
 
 // Validate validates all the required options for mine.
-func (o MineConfig) Validate() error {
+func (o MineOptions) Validate() error {
   return nil
 }
 
 // RunMine implements all the necessary functionality for mine.
-func (o MineConfig) RunMine() error {
+func (o MineOptions) RunMine() error {
   return nil
 }
 ```
@@ -336,7 +374,22 @@ and as noted in [command conventions](#command-conventions), ideally that logic
 should exist server-side so any client could take advantage of it. Notice that
 this is not a mandatory structure and not every command is implemented this way,
 but this is a nice convention so try to be compliant with it. As an example,
-have a look at how [kubectl logs](../../pkg/kubectl/cmd/logs.go) is implemented.
+have a look at how [kubectl logs](https://github.com/kubernetes/kubernetes/blob/master/pkg/kubectl/cmd/logs.go) is implemented.
+
+## Exit code conventions
+
+Generally, for all the command exit code, result of `zero` means success and `non-zero` means errors.
+
+For idempotent ("make-it-so") commands, we should return `zero` when success even if no changes were provided, user can request treating "make-it-so" as "already-so" via flag `--error-unchanged` to make it return `non-zero` exit code.
+
+For non-idempotent ("already-so") commands, we should return `non-zero` by default, user can request treating "already-so" as "make-it-so" via flag `--ignore-unchanged` to make it return `zero` exit code.
+
+
+| Exit Code Number | Meaning | Enable |
+| :---             | :---    | :---    |
+| 0                | Command exited success  | By default, By flag `--ignore-unchanged` |
+| 1                | Command exited for general errors  | By default |
+| 3                | Command was successful, but the user requested a distinct exit code when no change was made | By flag `--error-unchanged`|
 
 ## Generators
 
@@ -353,7 +406,7 @@ guarantee that the expected behavior stays the same.
 than just creation, similar to how -f is supported for most general-purpose
 commands.
 
-Generator commands shoud obey to the following conventions:
+Generator commands should obey the following conventions:
 
 * A `--generator` flag should be defined. Users then can choose between
 different generators, if the command supports them (for example, `kubectl run`

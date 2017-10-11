@@ -40,7 +40,7 @@ passing, so it is often a good idea to make sure the e2e tests work as well.
 * All packages and any significant files require unit tests.
 * The preferred method of testing multiple scenarios or input is
   [table driven testing](https://github.com/golang/go/wiki/TableDrivenTests)
-  - Example: [TestNamespaceAuthorization](../../test/integration/auth/auth_test.go)
+  - Example: [TestNamespaceAuthorization](https://git.k8s.io/kubernetes/test/integration/auth/auth_test.go)
 * Unit tests must pass on OS X and Windows platforms.
   - Tests using linux-specific features must be skipped or compiled out.
   - Skipped is better, compiled out is required when it won't compile.
@@ -61,7 +61,7 @@ make test  # Run all unit tests.
 ### Set go flags during unit tests
 
 You can set [go flags](https://golang.org/cmd/go/) by setting the
-`KUBE_GOFLAGS` environment variable.
+`GOFLAGS` environment variable.
 
 ### Run unit tests from certain packages
 
@@ -69,19 +69,19 @@ You can set [go flags](https://golang.org/cmd/go/) by setting the
 added automatically to these:
 
 ```sh
-make test WHAT=pkg/api                # run tests for pkg/api
+make test WHAT=./pkg/api                # run tests for pkg/api
 ```
 
 To run multiple targets you need quotes:
 
 ```sh
-make test WHAT="pkg/api pkg/kubelet"  # run tests for pkg/api and pkg/kubelet
+make test WHAT="./pkg/api ./pkg/kubelet"  # run tests for pkg/api and pkg/kubelet
 ```
 
 In a shell, it's often handy to use brace expansion:
 
 ```sh
-make test WHAT=pkg/{api,kubelet}  # run tests for pkg/api and pkg/kubelet
+make test WHAT=./pkg/{api,kubelet}  # run tests for pkg/api and pkg/kubelet
 ```
 
 ### Run specific unit test cases in a package
@@ -92,10 +92,10 @@ regular expression for the name of the test that should be run.
 
 ```sh
 # Runs TestValidatePod in pkg/api/validation with the verbose flag set
-make test WHAT=pkg/api/validation KUBE_GOFLAGS="-v" KUBE_TEST_ARGS='-run ^TestValidatePod$'
+make test WHAT=./pkg/api/validation GOFLAGS="-v" KUBE_TEST_ARGS='-run ^TestValidatePod$'
 
 # Runs tests that match the regex ValidatePod|ValidateConfigMap in pkg/api/validation
-make test WHAT=pkg/api/validation KUBE_GOFLAGS="-v" KUBE_TEST_ARGS="-run ValidatePod\|ValidateConfigMap$"
+make test WHAT=./pkg/api/validation GOFLAGS="-v" KUBE_TEST_ARGS="-run ValidatePod\|ValidateConfigMap$"
 ```
 
 For other supported test flags, see the [golang
@@ -130,7 +130,7 @@ To run tests and collect coverage in only one package, pass its relative path
 under the `kubernetes` directory as an argument, for example:
 
 ```sh
-make test WHAT=pkg/kubectl KUBE_COVER=y
+make test WHAT=./pkg/kubectl KUBE_COVER=y
 ```
 
 Multiple arguments can be passed, in which case the coverage results will be
@@ -161,9 +161,9 @@ See `go help test` and `go help testflag` for additional info.
   - This includes kubectl commands
 * The preferred method of testing multiple scenarios or inputs
 is [table driven testing](https://github.com/golang/go/wiki/TableDrivenTests)
-  - Example: [TestNamespaceAuthorization](../../test/integration/auth/auth_test.go)
+  - Example: [TestNamespaceAuthorization](https://git.k8s.io/kubernetes/test/integration/auth/auth_test.go)
 * Each test should create its own master, httpserver and config.
-  - Example: [TestPodUpdateActiveDeadlineSeconds](../../test/integration/pods/pods_test.go)
+  - Example: [TestPodUpdateActiveDeadlineSeconds](https://github.com/kubernetes/kubernetes/blob/master/test/integration/pods/pods_test.go)
 * See [coding conventions](coding-conventions.md).
 
 ### Install etcd dependency
@@ -180,7 +180,7 @@ hack/install-etcd.sh  # Installs in ./third_party/etcd
 echo export PATH="\$PATH:$(pwd)/third_party/etcd" >> ~/.profile  # Add to PATH
 
 # Option b) install manually
-grep -E "image.*etcd" cluster/saltbase/etcd/etcd.manifest  # Find version
+grep -E "image.*etcd" cluster/saltbase/salt/etcd/etcd.manifest  # Find version
 # Install that version using yum/apt-get/etc
 echo export PATH="\$PATH:<LOCATION>" >> ~/.profile  # Add to PATH
 ```
@@ -197,25 +197,24 @@ for those internal etcd instances with the `TEST_ETCD_DIR` environment variable.
 
 The integration tests are run using `make test-integration`.
 The Kubernetes integration tests are writting using the normal golang testing
-package but expect to have a running etcd instance to connect to.  The `test-
-integration.sh` script wraps `make test` and sets up an etcd instance
-for the integration tests to use.
+package but expect to have a running etcd instance to connect to.  The `test-integration.sh`
+script wraps `make test` and sets up an etcd instance for the integration tests to use.
 
 ```sh
 make test-integration  # Run all integration tests.
 ```
 
 This script runs the golang tests in package
-[`test/integration`](../../test/integration/).
+[`test/integration`](https://github.com/kubernetes/kubernetes/tree/master/test/integration).
 
 ### Run a specific integration test
 
-You can use also use the `KUBE_TEST_ARGS` environment variable with the `hack
-/test-integration.sh` script to run a specific integration test case:
+You can also use the `KUBE_TEST_ARGS` environment variable with the `make test-integration`
+to run a specific integration test case:
 
 ```sh
 # Run integration test TestPodUpdateActiveDeadlineSeconds with the verbose flag set.
-make test-integration KUBE_GOFLAGS="-v" KUBE_TEST_ARGS="-run ^TestPodUpdateActiveDeadlineSeconds$"
+make test-integration WHAT=./test/integration/pods GOFLAGS="-v" KUBE_TEST_ARGS="-run ^TestPodUpdateActiveDeadlineSeconds$"
 ```
 
 If you set `KUBE_TEST_ARGS`, the test case will be run with only the `v1` API
